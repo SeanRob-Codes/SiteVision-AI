@@ -303,7 +303,7 @@ function App() {
           <div style=${{ fontSize:15, fontWeight:800, color:"#fff", marginBottom:4 }}>New Capture</div>
           <div style=${{ fontSize:11, color:"#666" }}>Take a photo or upload from glasses</div>
         </div>
-        <input ref=${fileRef} type="file" accept="image/*" capture="environment" onChange=${handleImageUpload} className="hidden" />
+        <input ref=${fileRef} type="file" onChange=${handleImageUpload} className="hidden" />
 
         <div className="actions-grid">
           ${[
@@ -580,7 +580,7 @@ function App() {
         <button className="btn btn-primary mb-20" onClick=${() => fileRef.current?.click()}>
           ${icon("camera",16)} New Capture
         </button>
-        <input ref=${fileRef} type="file" accept="image/*" capture="environment" onChange=${handleImageUpload} className="hidden" />
+        <input ref=${fileRef} type="file" onChange=${handleImageUpload} className="hidden" />
         ${activeProj?.captures.length === 0 && html`
           <div className="card text-center" style=${{ padding:32 }}>
             <div style=${{ fontSize:13, color:"#555" }}>No captures yet. Take your first photo.</div>
