@@ -1,639 +1,1056 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="theme-color" content="#0a0a0a" />
-<title>SiteVision AI — Construction Intelligence</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔶</text></svg>" />
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="theme-color" content="#0a0a0a"/>
+<meta name="description" content="AI-powered construction measurement and site documentation tool for Meta Ray-Ban smart glasses"/>
+<title>SiteVision AI</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔶</text></svg>"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body, #root { height: 100%; }
-  body {
-    background: #0a0a0a; color: #e0e0e0;
-    font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
-    -webkit-font-smoothing: antialiased; overflow-x: hidden;
-  }
-  input::placeholder { color: #444; }
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: #0a0a0a; }
-  ::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
-  @keyframes pulse { 0%,100% { transform:scale(1);opacity:1 } 50% { transform:scale(1.15);opacity:.7 } }
-  @keyframes fadeIn { from { opacity:0;transform:translateY(8px) } to { opacity:1;transform:translateY(0) } }
-  .fade-in { animation: fadeIn .3s ease-out }
-  .app { max-width:480px; margin:0 auto; min-height:100vh; position:relative }
-  .header { background:linear-gradient(180deg,#111 0%,#0a0a0a 100%); border-bottom:1px solid #1a1a1a; padding:14px 20px; display:flex; align-items:center; gap:12px; position:sticky; top:0; z-index:100 }
-  .body { padding:20px; padding-bottom:40px }
-  .card { background:#111; border:1px solid #1f1f1f; border-radius:12px; padding:20px; margin-bottom:12px }
-  .card-hover { cursor:pointer; transition:border-color .15s }
-  .card-hover:hover { border-color:#333 }
-  .btn { border-radius:10px; padding:14px 20px; font-size:13px; font-weight:700; font-family:inherit; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; width:100%; transition:all .15s; border:none }
-  .btn-primary { background:#f97316; color:#000; letter-spacing:.5px }
-  .btn-primary:active { background:#ea580c }
-  .btn-secondary { background:#1a1a1a; color:#ccc; border:1px solid #2a2a2a }
-  .btn-secondary:active { background:#222 }
-  .btn-sm { border-radius:8px; padding:10px 16px; font-size:12px; font-weight:700; font-family:inherit; cursor:pointer; display:inline-flex; align-items:center; gap:6px; background:#1a1a1a; color:#ccc; border:1px solid #2a2a2a }
-  .btn-sm-accent { background:#f97316; color:#000; border:none }
-  .btn:disabled,.btn-sm:disabled { opacity:.4; cursor:default }
-  .tag { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#666; margin-bottom:8px }
-  .section-title { font-size:18px; font-weight:800; color:#fff; letter-spacing:-.5px }
-  .metric-box { background:#0d0d0d; border:1px solid #1a1a1a; border-radius:8px; padding:12px 16px; text-align:center }
-  .metric-label { font-size:9px; color:#666; letter-spacing:1px; text-transform:uppercase }
-  .metric-value { font-size:16px; font-weight:800; color:#f97316; margin-top:4px }
-  .mode-card { background:#111; border:1px solid #1f1f1f; border-radius:10px; padding:16px; cursor:pointer; transition:all .15s; display:flex; align-items:flex-start; gap:14px }
-  .mode-card.active { background:#f9731612; border-color:#f97316 }
-  .mode-card .mode-icon { color:#555 } .mode-card.active .mode-icon { color:#f97316 }
-  .mode-card .mode-title { color:#ccc } .mode-card.active .mode-title { color:#fff }
-  .conf { font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding:2px 8px; border-radius:4px }
-  .conf-high { color:#22c55e; background:#22c55e18; border:1px solid #22c55e33 }
-  .conf-medium { color:#f59e0b; background:#f59e0b18; border:1px solid #f59e0b33 }
-  .conf-low { color:#ef4444; background:#ef444418; border:1px solid #ef444433 }
-  .input { background:#0d0d0d; border:1px solid #2a2a2a; border-radius:8px; padding:12px 16px; color:#fff; font-size:13px; font-family:inherit; width:100%; outline:none }
-  .input:focus { border-color:#f97316 }
-  .img-preview { width:100%; border-radius:10px; border:1px solid #1f1f1f; margin-bottom:16px; display:block }
-  .capture-zone { border:2px dashed #f9731666; text-align:center; cursor:pointer; padding:32px; background:#f9731606; border-radius:12px; margin-bottom:12px; transition:border-color .15s }
-  .capture-zone:hover { border-color:#f97316 }
-  .actions-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin:16px 0 }
-  .action-card { text-align:center; cursor:pointer; padding:16px 8px; margin-bottom:0 }
-  .action-card:hover { border-color:#333 }
-  .loading-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:#0a0a0aee; display:flex; align-items:center; justify-content:center; z-index:1000; padding:20px }
-  .loading-box { background:#111; border:1px solid #f9731644; border-radius:16px; padding:40px 32px; text-align:center; max-width:320px; width:100% }
-  .loading-pulse { width:56px; height:56px; border-radius:50%; background:#f9731622; border:2px solid #f97316; margin:0 auto 20px; display:flex; align-items:center; justify-content:center; animation:pulse 1.5s ease-in-out infinite }
-  .back-btn { background:none; border:none; color:#888; cursor:pointer; padding:4px; display:flex; align-items:center }
-  .status-dot { width:8px; height:8px; border-radius:50%; background:#22c55e; box-shadow:0 0 8px #22c55e66 }
-  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:8px }
-  .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px }
-  .flex-row { display:flex; gap:8px }
-  .flex-1 { flex:1 } .flex-2 { flex:2 }
-  .mt-8{margin-top:8px} .mt-16{margin-top:16px} .mt-20{margin-top:20px}
-  .mb-12{margin-bottom:12px} .mb-16{margin-bottom:16px} .mb-20{margin-bottom:20px} .mb-24{margin-bottom:24px}
-  .text-center{text-align:center}
-  .pill { font-size:11px; background:#1a1a1a; border:1px solid #2a2a2a; border-radius:6px; padding:4px 10px; color:#ccc; display:inline-block; margin:3px }
-  .mode-badge { font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:#f97316; background:#f9731618; padding:2px 8px; border-radius:4px }
-  .result-badge { font-size:10px; color:#888; background:#1a1a1a; padding:4px 10px; border-radius:6px; text-transform:uppercase; letter-spacing:1px; font-weight:700 }
-  .issue-item { font-size:12px; color:#fca5a5; margin-bottom:4px }
-  .rec-item { font-size:12px; color:#86efac; margin-bottom:4px }
-  .note-card { border-left:3px solid #f97316 }
-  .issue-card { border-left:3px solid #ef4444 }
-  .rec-card { border-left:3px solid #22c55e }
-  .warn-card { border-left:3px solid #f59e0b }
-  .cost-card { border-color:#22c55e33; background:#22c55e08 }
-  .ref-card { border-color:#f9731633; background:#f9731608 }
-  .hidden { display:none }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body,#root{height:100%}
+body{background:#08080a;color:#d4d4d8;font-family:'JetBrains Mono','SF Mono',monospace;-webkit-font-smoothing:antialiased;overflow-x:hidden;overscroll-behavior:none}
+input::placeholder{color:#3f3f46}
+textarea::placeholder{color:#3f3f46}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#27272a;border-radius:2px}
+
+/* ── Animations ───────────────────────── */
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.12);opacity:.6}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes glow{0%,100%{box-shadow:0 0 8px #f9731633}50%{box-shadow:0 0 20px #f9731666}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.anim-up{animation:slideUp .4s cubic-bezier(.16,1,.3,1) both}
+.anim-in{animation:slideIn .35s cubic-bezier(.16,1,.3,1) both}
+.anim-fade{animation:fadeIn .3s ease both}
+.anim-scale{animation:scaleIn .3s cubic-bezier(.16,1,.3,1) both}
+.delay-1{animation-delay:.05s}.delay-2{animation-delay:.1s}.delay-3{animation-delay:.15s}.delay-4{animation-delay:.2s}.delay-5{animation-delay:.25s}
+
+/* ── Layout ───────────────────────────── */
+.app{max-width:480px;margin:0 auto;min-height:100vh;position:relative;background:#08080a}
+.header{background:linear-gradient(180deg,#0f0f12 0%,#08080a 100%);border-bottom:1px solid #18181b;padding:12px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.body{padding:16px;padding-bottom:100px}
+
+/* ── Cards ────────────────────────────── */
+.card{background:#0f0f12;border:1px solid #1c1c22;border-radius:14px;padding:18px;margin-bottom:10px;transition:all .2s}
+.card-interactive{cursor:pointer}
+.card-interactive:active{transform:scale(.985);border-color:#27272a}
+.card-glow{border-color:#f9731644;background:linear-gradient(135deg,#f9731608 0%,transparent 60%)}
+.card-danger{border-left:3px solid #ef4444;border-color:#ef444433}
+.card-success{border-left:3px solid #22c55e;border-color:#22c55e33}
+.card-warn{border-left:3px solid #f59e0b;border-color:#f59e0b33}
+.card-info{border-color:#f9731633;background:#f9731606}
+
+/* ── Buttons ──────────────────────────── */
+.btn{border-radius:12px;padding:14px 20px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;transition:all .15s;border:none;-webkit-tap-highlight-color:transparent;user-select:none}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:linear-gradient(135deg,#f97316,#ea580c);color:#000;letter-spacing:.5px;box-shadow:0 4px 16px #f9731633}
+.btn-primary:active{box-shadow:0 2px 8px #f9731633}
+.btn-secondary{background:#18181b;color:#a1a1aa;border:1px solid #27272a}
+.btn-ghost{background:transparent;color:#71717a;border:1px solid transparent}
+.btn-ghost:active{background:#18181b}
+.btn:disabled{opacity:.35;cursor:default;transform:none!important}
+.btn-sm{border-radius:8px;padding:8px 14px;font-size:11px;font-weight:700;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:6px;background:#18181b;color:#a1a1aa;border:1px solid #27272a;-webkit-tap-highlight-color:transparent}
+.btn-sm:active{transform:scale(.96)}
+.btn-sm-accent{background:#f97316;color:#000;border:none}
+
+/* ── Typography ───────────────────────── */
+.tag{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#52525b;margin-bottom:8px}
+.h1{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;color:#fafafa;letter-spacing:-.75px;line-height:1.1}
+.h2{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:#fafafa;letter-spacing:-.5px}
+.h3{font-size:14px;font-weight:700;color:#e4e4e7}
+.text-sm{font-size:11px;color:#71717a}
+.text-xs{font-size:10px;color:#52525b}
+.text-orange{color:#f97316}
+
+/* ── Metric Box ──────────────────────── */
+.metric{background:#0c0c0f;border:1px solid #1c1c22;border-radius:10px;padding:12px;text-align:center}
+.metric-label{font-size:8px;color:#52525b;letter-spacing:1.5px;text-transform:uppercase;font-weight:700}
+.metric-value{font-size:18px;font-weight:800;color:#f97316;margin-top:4px;font-family:'Space Grotesk',sans-serif}
+.metric-value-sm{font-size:13px;font-weight:700;color:#fafafa;margin-top:4px}
+
+/* ── Mode Cards ──────────────────────── */
+.mode-card{background:#0f0f12;border:1px solid #1c1c22;border-radius:12px;padding:14px 16px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:14px;-webkit-tap-highlight-color:transparent}
+.mode-card:active{transform:scale(.98)}
+.mode-card.active{background:linear-gradient(135deg,#f9731610 0%,#f9731605 100%);border-color:#f97316}
+
+/* ── Badges ───────────────────────────── */
+.conf{font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border-radius:5px}
+.conf-high{color:#22c55e;background:#22c55e15;border:1px solid #22c55e33}
+.conf-medium{color:#f59e0b;background:#f59e0b15;border:1px solid #f59e0b33}
+.conf-low{color:#ef4444;background:#ef444415;border:1px solid #ef444433}
+.badge{font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border-radius:5px;color:#f97316;background:#f9731615;border:1px solid #f9731633}
+
+/* ── Input ────────────────────────────── */
+.input{background:#0c0c0f;border:1px solid #27272a;border-radius:10px;padding:12px 16px;color:#fafafa;font-size:13px;font-family:inherit;width:100%;outline:none;transition:border-color .2s}
+.input:focus{border-color:#f97316;box-shadow:0 0 0 3px #f9731618}
+
+/* ── Image ────────────────────────────── */
+.img-preview{width:100%;border-radius:12px;border:1px solid #1c1c22;margin-bottom:16px;display:block;background:#0c0c0f}
+.img-thumb{width:60px;height:60px;border-radius:10px;object-fit:cover;border:1px solid #1c1c22;cursor:pointer;transition:border-color .2s;flex-shrink:0}
+.img-thumb:active{border-color:#f97316}
+
+/* ── Capture Zone ────────────────────── */
+.capture-zone{border:2px dashed #f9731644;text-align:center;cursor:pointer;padding:36px 20px;background:linear-gradient(135deg,#f9731606 0%,transparent 60%);border-radius:14px;margin-bottom:10px;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.capture-zone:active{border-color:#f97316;transform:scale(.98)}
+
+/* ── Grid ─────────────────────────────── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.flex{display:flex}.flex-col{flex-direction:column}.flex-row{display:flex;flex-direction:row}
+.gap-6{gap:6px}.gap-8{gap:8px}.gap-10{gap:10px}.gap-12{gap:12px}
+.flex-1{flex:1}.flex-2{flex:2}
+.items-center{align-items:center}.items-start{align-items:flex-start}
+.justify-between{justify-content:space-between}
+.mt-4{margin-top:4px}.mt-8{margin-top:8px}.mt-12{margin-top:12px}.mt-16{margin-top:16px}.mt-20{margin-top:20px}
+.mb-4{margin-bottom:4px}.mb-8{margin-bottom:8px}.mb-10{margin-bottom:10px}.mb-12{margin-bottom:12px}.mb-16{margin-bottom:16px}.mb-20{margin-bottom:20px}
+.text-center{text-align:center}
+.text-right{text-align:right}
+.w-full{width:100%}
+.hidden{display:none}
+
+/* ── Pills ────────────────────────────── */
+.pill{font-size:10px;background:#18181b;border:1px solid #27272a;border-radius:6px;padding:4px 10px;color:#a1a1aa;display:inline-block;margin:2px}
+
+/* ── Overlay ──────────────────────────── */
+.overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(8,8,10,.92);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.overlay-box{background:#0f0f12;border:1px solid #27272a;border-radius:18px;padding:28px;max-width:340px;width:100%}
+
+/* ── Loading ──────────────────────────── */
+.loading-ring{width:56px;height:56px;border-radius:50%;border:3px solid #1c1c22;border-top-color:#f97316;animation:spin 1s linear infinite;margin:0 auto 20px}
+.shimmer{background:linear-gradient(90deg,#18181b 25%,#27272a 50%,#18181b 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:8px}
+
+/* ── Toast ────────────────────────────── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#18181b;border:1px solid #27272a;border-radius:10px;padding:10px 20px;font-size:12px;font-weight:600;color:#a1a1aa;z-index:2000;animation:slideUp .3s cubic-bezier(.16,1,.3,1);pointer-events:none;white-space:nowrap}
+.toast-success{border-color:#22c55e44;color:#22c55e}
+
+/* ── Status Dot ───────────────────────── */
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dot-green{background:#22c55e;box-shadow:0 0 8px #22c55e55}
+.dot-yellow{background:#f59e0b;box-shadow:0 0 8px #f59e0b55}
+.dot-red{background:#ef4444;box-shadow:0 0 8px #ef444455}
+
+/* ── Back Button ──────────────────────── */
+.back-btn{background:none;border:none;color:#52525b;cursor:pointer;padding:6px;display:flex;align-items:center;-webkit-tap-highlight-color:transparent;border-radius:8px;transition:all .15s}
+.back-btn:active{background:#18181b;color:#a1a1aa}
+
+/* ── Image Zoom ──────────────────────── */
+.zoom-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.95);z-index:1100;display:flex;align-items:center;justify-content:center;cursor:zoom-out;-webkit-tap-highlight-color:transparent}
+.zoom-overlay img{max-width:100%;max-height:100%;object-fit:contain}
+
+/* ── Utility ──────────────────────────── */
+.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
 </style>
 </head>
 <body>
 <div id="root"></div>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/htm/3.1.1/htm.min.js"></script>
-
 <script type="module">
-const { useState, useRef, useCallback, createElement: h } = React;
-const html = htm.bind(h);
+var h = React.createElement;
+var html = htm.bind(h);
+var useState = React.useState;
+var useRef = React.useRef;
+var useCallback = React.useCallback;
+var useEffect = React.useEffect;
+var useMemo = React.useMemo;
 
-const ANTHROPIC_MODEL = "claude-sonnet-4-20250514";
+var MODEL = "claude-sonnet-4-20250514";
+var STORE_KEY_PROJECTS = "sv_projects";
+var STORE_KEY_APIKEY = "sv_api_key";
+var MAX_IMG_DIM = 2048;
+var JPEG_QUALITY = 0.85;
+var MAX_RETRIES = 3;
 
-const uid = () => Math.random().toString(36).slice(2, 10);
-const ts = () => new Date().toLocaleString("en-US", { month:"short", day:"numeric", hour:"numeric", minute:"2-digit" });
-const fileToBase64 = (file) => new Promise((res, rej) => {
-  const r = new FileReader(); r.onload = () => res(r.result.split(",")[1]); r.onerror = rej; r.readAsDataURL(file);
-});
+// ══════════════════════════════════════════════════════════════
+// ██  UTILITIES
+// ══════════════════════════════════════════════════════════════
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+function now() { return new Date().toLocaleString("en-US", { month:"short", day:"numeric", hour:"numeric", minute:"2-digit" }); }
+function safeJSON(str) { try { return JSON.parse(str); } catch(e) { return null; } }
 
-// ── SVG Icons as functions ──────────────────────────────────
-function icon(name, s = 18) {
-  const p = { width: s, height: s, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", xmlns: "http://www.w3.org/2000/svg" };
-  const paths = {
-    camera: '<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>',
-    ruler: '<path d="M2 4h4v16H2z"/><path d="M6 12h2"/><path d="M6 8h3"/><path d="M6 16h3"/><path d="M6 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6"/>',
-    box: '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>',
-    clipboard: '<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>',
-    chat: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
-    folder: '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>',
-    plus: '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
-    glasses: '<circle cx="6" cy="15" r="4"/><circle cx="18" cy="15" r="4"/><path d="M10 15h4"/><path d="M2 15V9a2 2 0 0 1 2-2"/><path d="M22 15V9a2 2 0 0 1-2-2"/>',
-    zap: '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
-    check: '<polyline points="20 6 9 17 4 12"/>',
-    x: '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
-    chevron: '<polyline points="15 18 9 12 15 6"/>',
-    chevronR: '<polyline points="9 18 15 12 9 6"/>',
-    trash: '<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
-    key: '<path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>',
-  };
-  const svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
-  return h("span", { dangerouslySetInnerHTML: { __html: `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">${paths[name]}</svg>` }, style: { display: "inline-flex", flexShrink: 0, lineHeight: 0 } });
+// Persistent storage helpers
+function loadStore(key, fallback) {
+  try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+  catch(e) { return fallback; }
+}
+function saveStore(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
 }
 
-// ── AI Analysis ─────────────────────────────────────────────
-async function analyzeImage(base64, mediaType, mode, customPrompt, apiKey) {
-  const systemPrompts = {
-    measure: `You are a construction measurement estimation AI. Analyze this construction site photo and:
-1. Identify all visible surfaces, openings, and structural elements
-2. Look for ANY reference objects that could establish scale (doors are ~6'8" tall, standard outlets are ~4.5" tall, 2x4 lumber is 1.5"x3.5", standard bricks are ~2.25"x3.625"x7.625", ceiling tiles are typically 2'x2' or 2'x4', standard interior doors are ~3'x6'8")
-3. Estimate dimensions of walls, floors, ceilings, windows, doors, and any other measurable surfaces
-4. Note confidence level for each measurement (high/medium/low based on reference clarity)
-Respond ONLY in this JSON format, no markdown, no backticks:
-{"measurements":[{"surface":"name","width_ft":0,"height_ft":0,"area_sqft":0,"confidence":"high|medium|low","notes":""}],"reference_used":"what you used for scale","room_type":"detected room type","overall_notes":"any important observations"}`,
+// ── Image Processing (handles HEIC, rotates, resizes, always JPEG) ──
+function processImage(file) {
+  return new Promise(function(resolve, reject) {
+    if (!file) return reject(new Error("No file provided"));
+    if (file.size > 50 * 1024 * 1024) return reject(new Error("Image too large (max 50MB)"));
 
-    material: `You are a construction material estimation AI. Analyze this photo and estimate materials needed. Consider the visible space and provide practical estimates a contractor would need.
-Respond ONLY in this JSON format, no markdown, no backticks:
-{"materials":[{"item":"material name","quantity":0,"unit":"sheets|sqft|linear_ft|gallons|bags|boxes|rolls","notes":""}],"room_type":"detected room type","scope":"what work appears needed","labor_hours_estimate":{"low":0,"high":0},"cost_estimate_range":{"low":0,"high":0,"currency":"USD"},"assumptions":"key assumptions made"}`,
+    var url;
+    try { url = URL.createObjectURL(file); }
+    catch(e) { return reject(new Error("Could not read the file")); }
 
-    document: `You are a construction site documentation AI. Analyze this photo and provide a detailed professional site report entry.
-Respond ONLY in this JSON format, no markdown, no backticks:
-{"location_type":"room/area type","condition":"current condition assessment","work_phase":"demolition|framing|rough-in|drywall|finishing|final","items_visible":["list of notable items/features"],"issues":["any concerns or problems spotted"],"progress_pct":0,"recommendations":["actionable next steps"],"summary":"2-3 sentence professional summary"}`,
+    var img = new Image();
+    var timeout = setTimeout(function() {
+      URL.revokeObjectURL(url);
+      reject(new Error("Image took too long to load — try a smaller photo"));
+    }, 15000);
 
-    custom: `You are a construction AI assistant analyzing a job site photo. ${customPrompt}\nRespond in clear, practical language a contractor would use. Be specific with numbers and actionable details.`
-  };
+    img.onload = function() {
+      clearTimeout(timeout);
+      try {
+        var w = img.naturalWidth || img.width;
+        var h = img.naturalHeight || img.height;
+        if (w === 0 || h === 0) throw new Error("Image has zero dimensions");
 
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "Content-Type":"application/json", "x-api-key":apiKey, "anthropic-version":"2023-06-01", "anthropic-dangerous-direct-browser-access":"true" },
-    body: JSON.stringify({
-      model: ANTHROPIC_MODEL, max_tokens: 1500, system: systemPrompts[mode],
-      messages: [{ role:"user", content: [
-        { type:"image", source:{ type:"base64", media_type:mediaType, data:base64 } },
-        { type:"text", text: mode === "custom" ? customPrompt : `Analyze this construction photo in ${mode} mode.` }
-      ]}]
-    })
+        // Resize if needed
+        if (w > MAX_IMG_DIM || h > MAX_IMG_DIM) {
+          if (w > h) { h = Math.round(h * MAX_IMG_DIM / w); w = MAX_IMG_DIM; }
+          else { w = Math.round(w * MAX_IMG_DIM / h); h = MAX_IMG_DIM; }
+        }
+
+        var canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        var ctx = canvas.getContext("2d");
+        if (!ctx) throw new Error("Canvas not supported on this device");
+        ctx.drawImage(img, 0, 0, w, h);
+        var dataUrl = canvas.toDataURL("image/jpeg", JPEG_QUALITY);
+        var b64 = dataUrl.split(",")[1];
+        if (!b64 || b64.length < 100) throw new Error("Image conversion produced empty result");
+
+        // Create thumbnail for storage
+        var tw = 120, th = 120;
+        var thumbCanvas = document.createElement("canvas");
+        thumbCanvas.width = tw;
+        thumbCanvas.height = th;
+        var tctx = thumbCanvas.getContext("2d");
+        // Center crop
+        var scale = Math.max(tw / img.width, th / img.height);
+        var sw = tw / scale, sh = th / scale;
+        var sx = (img.width - sw) / 2, sy = (img.height - sh) / 2;
+        tctx.drawImage(img, sx, sy, sw, sh, 0, 0, tw, th);
+        var thumbUrl = thumbCanvas.toDataURL("image/jpeg", 0.6);
+
+        URL.revokeObjectURL(url);
+        resolve({ base64: b64, preview: dataUrl, thumbnail: thumbUrl, width: w, height: h });
+      } catch(e) {
+        URL.revokeObjectURL(url);
+        reject(new Error("Failed to process image: " + (e.message || "unknown error")));
+      }
+    };
+
+    img.onerror = function() {
+      clearTimeout(timeout);
+      URL.revokeObjectURL(url);
+      reject(new Error("Could not decode this image — it may be corrupted or an unsupported format. Try taking a new photo."));
+    };
+
+    img.crossOrigin = "anonymous";
+    img.src = url;
   });
-
-  if (!response.ok) { const err = await response.json().catch(() => ({})); throw new Error(err.error?.message || `API error ${response.status}`); }
-  const data = await response.json();
-  const text = data.content?.map(b => b.text || "").join("") || "";
-  if (mode === "custom") return { type:"custom", text };
-  try { return { type:mode, data:JSON.parse(text.replace(/```json|```/g,"").trim()) }; }
-  catch { return { type:"custom", text }; }
 }
 
-// ── Confidence Badge ────────────────────────────────────────
-function ConfBadge({ level }) {
-  return html`<span className=${"conf conf-" + level}>${level}</span>`;
+// ── API Call with Retry ─────────────────────────────────────
+function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+
+async function callAPI(base64, mediaType, systemPrompt, userText, apiKey, onRetry) {
+  var lastErr = null;
+  for (var attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    if (attempt > 0) {
+      if (onRetry) onRetry(attempt);
+      await sleep(1000 * Math.pow(2, attempt)); // exponential backoff: 2s, 4s
+    }
+    try {
+      var resp = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true"
+        },
+        body: JSON.stringify({
+          model: MODEL,
+          max_tokens: 2000,
+          system: systemPrompt,
+          messages: [{ role: "user", content: [
+            { type: "image", source: { type: "base64", media_type: mediaType, data: base64 } },
+            { type: "text", text: userText }
+          ]}]
+        })
+      });
+
+      if (resp.status === 429) {
+        lastErr = new Error("Rate limited — waiting before retry...");
+        continue; // retry
+      }
+      if (resp.status === 529) {
+        lastErr = new Error("API overloaded — waiting before retry...");
+        continue;
+      }
+      if (!resp.ok) {
+        var errBody = null;
+        try { errBody = await resp.json(); } catch(e) {}
+        var errMsg = (errBody && errBody.error && errBody.error.message) ? errBody.error.message : "API returned status " + resp.status;
+        if (resp.status === 401) throw new Error("Invalid API key — check your key in settings");
+        if (resp.status === 403) throw new Error("API access denied — your key may lack permissions");
+        if (resp.status >= 500) { lastErr = new Error("Server error — retrying... (" + errMsg + ")"); continue; }
+        throw new Error(errMsg);
+      }
+
+      var data = null;
+      try { data = await resp.json(); } catch(e) { throw new Error("Received invalid response from API"); }
+      var text = "";
+      if (data && data.content && Array.isArray(data.content)) {
+        for (var i = 0; i < data.content.length; i++) {
+          if (data.content[i].type === "text" && data.content[i].text) text += data.content[i].text;
+        }
+      }
+      if (!text) throw new Error("AI returned an empty response — try a different photo or angle");
+      return text;
+
+    } catch(e) {
+      if (e.message && (e.message.indexOf("Invalid API") >= 0 || e.message.indexOf("access denied") >= 0)) throw e; // don't retry auth errors
+      lastErr = e;
+      if (attempt === MAX_RETRIES - 1) throw new Error((lastErr && lastErr.message) ? lastErr.message : "Request failed after " + MAX_RETRIES + " attempts");
+    }
+  }
+  throw lastErr || new Error("Request failed");
+}
+
+// ── Analysis Modes ──────────────────────────────────────────
+var SYSTEM_PROMPTS = {
+  measure: "You are a construction measurement estimation AI used by professional contractors. Analyze this photo and:\n1. Identify ALL visible surfaces, openings, structural elements\n2. Find reference objects for scale: doors (~6'8\" tall x 3' wide), outlets (~4.5\" tall), 2x4 lumber (1.5\"x3.5\"), bricks (~2.25\"x3.625\"x7.625\"), ceiling tiles (2'x2' or 2'x4'), baseboards (~3-5\" tall), standard windows (~3'x4'), light switches (~4.5\" tall), doorknobs (~36\" from floor)\n3. Estimate dimensions of every measurable surface with width, height, and area\n4. Rate confidence (high/medium/low) based on reference object clarity\n\nRespond ONLY in JSON, no markdown fences:\n{\"measurements\":[{\"surface\":\"name\",\"width_ft\":0,\"height_ft\":0,\"area_sqft\":0,\"confidence\":\"high|medium|low\",\"notes\":\"\"}],\"reference_used\":\"what you used for scale\",\"room_type\":\"detected type\",\"overall_notes\":\"observations\",\"total_wall_area_sqft\":0,\"total_floor_area_sqft\":0}",
+
+  material: "You are a construction material estimation AI for professional contractors. Analyze this photo and provide a complete material takeoff.\n\nRespond ONLY in JSON, no markdown fences:\n{\"materials\":[{\"item\":\"name\",\"quantity\":0,\"unit\":\"sheets|sqft|linear_ft|gallons|bags|boxes|rolls|each\",\"unit_cost_est\":0,\"notes\":\"\"}],\"room_type\":\"detected type\",\"scope\":\"work needed\",\"labor_hours_estimate\":{\"low\":0,\"high\":0},\"cost_estimate_range\":{\"low\":0,\"high\":0,\"currency\":\"USD\"},\"assumptions\":\"key assumptions\",\"recommended_extras\":\"things easy to forget\"}",
+
+  document: "You are a construction site documentation AI generating professional reports. Analyze this photo thoroughly.\n\nRespond ONLY in JSON, no markdown fences:\n{\"location_type\":\"room/area\",\"condition\":\"assessment\",\"work_phase\":\"demolition|framing|rough-in|insulation|drywall|mudding|painting|trim|finishing|final|punch-list\",\"items_visible\":[\"list\"],\"issues\":[\"concerns\"],\"safety_concerns\":[\"any safety issues\"],\"progress_pct\":0,\"recommendations\":[\"next steps\"],\"summary\":\"2-3 sentence professional summary\",\"quality_rating\":\"good|acceptable|needs-attention|poor\"}",
+
+  custom: "" // set dynamically
+};
+
+var MODE_INFO = [
+  { id:"measure", ic:"ruler", title:"Measure", desc:"Walls, surfaces, openings", color:"#f97316" },
+  { id:"material", ic:"box", title:"Materials", desc:"Quantities, costs, labor", color:"#22c55e" },
+  { id:"document", ic:"clipboard", title:"Document", desc:"Professional site report", color:"#3b82f6" },
+  { id:"custom", ic:"chat", title:"Ask AI", desc:"Any question about this photo", color:"#a855f7" },
+];
+
+async function analyzeImage(base64, mode, customPrompt, apiKey, onRetry) {
+  var sysPrompt = mode === "custom"
+    ? "You are a construction AI assistant. " + customPrompt + "\nRespond in clear practical language a contractor would use. Be specific with numbers."
+    : SYSTEM_PROMPTS[mode];
+  var userText = mode === "custom" ? customPrompt : "Analyze this construction photo in " + mode + " mode. Be thorough and precise.";
+
+  var text = await callAPI(base64, "image/jpeg", sysPrompt, userText, apiKey, onRetry);
+
+  if (mode === "custom") return { type:"custom", text:text };
+
+  var clean = text.replace(/```json/g, "").replace(/```/g, "").trim();
+  var parsed = safeJSON(clean);
+  if (parsed) return { type:mode, data:parsed };
+  return { type:"custom", text:text }; // fallback if JSON parse fails
+}
+
+// ── SVG Icons ───────────────────────────────────────────────
+var ICON_PATHS = {
+  camera:'<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>',
+  ruler:'<path d="M2 4h4v16H2z"/><path d="M6 12h2"/><path d="M6 8h3"/><path d="M6 16h3"/><path d="M6 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6"/>',
+  box:'<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>',
+  clipboard:'<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>',
+  chat:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+  folder:'<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>',
+  plus:'<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+  glasses:'<circle cx="6" cy="15" r="4"/><circle cx="18" cy="15" r="4"/><path d="M10 15h4"/><path d="M2 15V9a2 2 0 0 1 2-2"/><path d="M22 15V9a2 2 0 0 1-2-2"/>',
+  zap:'<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+  check:'<polyline points="20 6 9 17 4 12"/>',
+  x:'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+  chevL:'<polyline points="15 18 9 12 15 6"/>',
+  chevR:'<polyline points="9 18 15 12 9 6"/>',
+  trash:'<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+  key:'<path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>',
+  share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>',
+  copy:'<rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
+  mappin:'<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',
+  refresh:'<polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>',
+  settings:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+};
+
+function ic(name, size) {
+  var s = size || 18;
+  return h("span", {
+    dangerouslySetInnerHTML: { __html: '<svg width="'+s+'" height="'+s+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+ICON_PATHS[name]+'</svg>' },
+    style: { display:"inline-flex", flexShrink:0, lineHeight:0 }
+  });
 }
 
 // ══════════════════════════════════════════════════════════════
-// ██  MAIN APP
+// ██  MAIN APPLICATION
 // ══════════════════════════════════════════════════════════════
 function App() {
-  const [view, setView] = useState("home");
-  const [projects, setProjects] = useState([ { id:"default", name:"Quick Captures", captures:[], created:ts() } ]);
-  const [activeProject, setActiveProject] = useState("default");
-  const [capturedImage, setCapturedImage] = useState(null);
-  const [imageBase64, setImageBase64] = useState(null);
-  const [mediaType, setMediaType] = useState("image/jpeg");
-  const [analysisResult, setAnalysisResult] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [loadingMsg, setLoadingMsg] = useState("");
-  const [selectedCapture, setSelectedCapture] = useState(null);
-  const [customQ, setCustomQ] = useState("");
-  const [newProjectName, setNewProjectName] = useState("");
-  const [showNewProject, setShowNewProject] = useState(false);
-  const [apiKey, setApiKey] = useState(localStorage.getItem("sv_api_key") || "");
-  const [showSettings, setShowSettings] = useState(false);
-  const [error, setError] = useState(null);
-  const fileRef = useRef(null);
+  var _view = useState("home");         var view = _view[0]; var setView = _view[1];
+  var _projects = useState(function() {
+    return loadStore(STORE_KEY_PROJECTS, [{ id:"default", name:"Quick Captures", captures:[], created:now() }]);
+  }); var projects = _projects[0]; var setProjects = _projects[1];
+  var _activeProj = useState("default"); var activeProject = _activeProj[0]; var setActiveProject = _activeProj[1];
+  var _imgData = useState(null);        var imgData = _imgData[0]; var setImgData = _imgData[1]; // { base64, preview, thumbnail, width, height }
+  var _result = useState(null);          var result = _result[0]; var setResult = _result[1];
+  var _loading = useState(false);        var loading = _loading[0]; var setLoading = _loading[1];
+  var _loadMsg = useState("");           var loadMsg = _loadMsg[0]; var setLoadMsg = _loadMsg[1];
+  var _selCapture = useState(null);      var selCapture = _selCapture[0]; var setSelCapture = _selCapture[1];
+  var _customQ = useState("");           var customQ = _customQ[0]; var setCustomQ = _customQ[1];
+  var _newProjName = useState("");       var newProjName = _newProjName[0]; var setNewProjName = _newProjName[1];
+  var _showNewProj = useState(false);    var showNewProj = _showNewProj[0]; var setShowNewProj = _showNewProj[1];
+  var _apiKey = useState(function() { try { return localStorage.getItem(STORE_KEY_APIKEY) || ""; } catch(e) { return ""; } });
+  var apiKey = _apiKey[0]; var setApiKeyState = _apiKey[1];
+  var _showSettings = useState(false);   var showSettings = _showSettings[0]; var setShowSettings = _showSettings[1];
+  var _error = useState(null);           var error = _error[0]; var setError = _error[1];
+  var _toast = useState(null);           var toast = _toast[0]; var setToast = _toast[1];
+  var _zoom = useState(null);            var zoom = _zoom[0]; var setZoom = _zoom[1];
+  var _online = useState(navigator.onLine); var online = _online[0]; var setOnline = _online[1];
+  var fileRef = useRef(null);
 
-  const loadingMessages = {
-    measure:["Scanning surfaces...","Calculating dimensions...","Estimating measurements..."],
-    material:["Identifying materials...","Calculating quantities...","Estimating costs..."],
-    document:["Analyzing site conditions...","Documenting features...","Generating report..."],
-    custom:["Processing your question...","Analyzing the image...","Generating response..."]
+  // Persist projects
+  useEffect(function() { saveStore(STORE_KEY_PROJECTS, projects); }, [projects]);
+
+  // Online/offline
+  useEffect(function() {
+    var on = function() { setOnline(true); };
+    var off = function() { setOnline(false); };
+    window.addEventListener("online", on);
+    window.addEventListener("offline", off);
+    return function() { window.removeEventListener("online", on); window.removeEventListener("offline", off); };
+  }, []);
+
+  // Toast auto-dismiss
+  useEffect(function() {
+    if (!toast) return;
+    var t = setTimeout(function() { setToast(null); }, 2500);
+    return function() { clearTimeout(t); };
+  }, [toast]);
+
+  function showToast(msg, type) { setToast({ msg:msg, type:type || "" }); }
+  function saveKey(k) { setApiKeyState(k); try { localStorage.setItem(STORE_KEY_APIKEY, k); } catch(e) {} }
+
+  var activeProj = useMemo(function() { return projects.find(function(p) { return p.id === activeProject; }); }, [projects, activeProject]);
+
+  // ── Analysis ────────────────────────────────────────────
+  var loadingMsgs = {
+    measure:["Scanning surfaces...","Finding reference objects...","Calculating dimensions...","Estimating area..."],
+    material:["Identifying materials needed...","Calculating quantities...","Estimating costs...","Checking extras..."],
+    document:["Analyzing site conditions...","Assessing work phase...","Checking for issues...","Writing report..."],
+    custom:["Processing your question...","Analyzing the photo...","Generating answer..."]
   };
 
-  const saveKey = (k) => { setApiKey(k); localStorage.setItem("sv_api_key", k); };
-
-  const runAnalysis = useCallback(async (mode, prompt = "") => {
-    if (!imageBase64) return;
+  var runAnalysis = useCallback(function(mode, prompt) {
+    if (!imgData) return;
     if (!apiKey) { setShowSettings(true); return; }
-    setError(null); setLoading(true);
-    const msgs = loadingMessages[mode] || loadingMessages.custom;
-    let i = 0; setLoadingMsg(msgs[0]);
-    const interval = setInterval(() => { i = (i+1) % msgs.length; setLoadingMsg(msgs[i]); }, 2000);
-    try {
-      const result = await analyzeImage(imageBase64, mediaType, mode, prompt, apiKey);
-      setAnalysisResult(result);
-      const capture = { id:uid(), image:capturedImage, result, mode, timestamp:ts() };
-      setProjects(prev => prev.map(p => p.id === activeProject ? { ...p, captures:[capture,...p.captures] } : p));
-      setSelectedCapture(capture); setView("results");
-    } catch(err) { setError(err.message); setAnalysisResult(null); }
-    finally { clearInterval(interval); setLoading(false); }
-  }, [imageBase64, mediaType, capturedImage, activeProject, apiKey]);
+    if (!online) { setError("You're offline — connect to the internet and try again"); return; }
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files?.[0]; if (!file) return;
-    setMediaType(file.type || "image/jpeg");
-    const url = URL.createObjectURL(file);
-    setCapturedImage(url);
-    fileToBase64(file).then(b64 => { setImageBase64(b64); setView("capture"); });
-    e.target.value = "";
-  };
+    setError(null);
+    setLoading(true);
+    var msgs = loadingMsgs[mode] || loadingMsgs.custom;
+    var idx = 0;
+    setLoadMsg(msgs[0]);
+    var interval = setInterval(function() { idx = (idx + 1) % msgs.length; setLoadMsg(msgs[idx]); }, 2200);
 
-  const clearCapture = () => { setCapturedImage(null); setImageBase64(null); setAnalysisResult(null); setSelectedCapture(null); setError(null); };
-  const activeProj = projects.find(p => p.id === activeProject);
-  const addProject = () => {
-    if (!newProjectName.trim()) return;
-    const p = { id:uid(), name:newProjectName.trim(), captures:[], created:ts() };
-    setProjects(prev => [...prev, p]); setActiveProject(p.id); setNewProjectName(""); setShowNewProject(false);
-  };
-  const deleteCapture = (captureId) => {
-    setProjects(prev => prev.map(p => ({ ...p, captures:p.captures.filter(c => c.id !== captureId) })));
-    if (selectedCapture?.id === captureId) { setSelectedCapture(null); setView("home"); }
-  };
-  const goBack = () => { if (view === "results" || view === "capture") { clearCapture(); setView("home"); } else setView("home"); };
+    analyzeImage(imgData.base64, mode, prompt || "", apiKey, function(attempt) {
+      setLoadMsg("Retrying (attempt " + (attempt + 1) + "/" + MAX_RETRIES + ")...");
+    }).then(function(res) {
+      setResult(res);
+      var capture = { id:uid(), thumbnail:imgData.thumbnail, preview:imgData.preview, result:res, mode:mode, timestamp:now() };
+      setProjects(function(prev) { return prev.map(function(p) { return p.id === activeProject ? Object.assign({}, p, { captures:[capture].concat(p.captures) }) : p; }); });
+      setSelCapture(capture);
+      setView("results");
+    }).catch(function(err) {
+      var msg = "Unknown error";
+      try {
+        if (err && err.message) msg = err.message;
+        else if (typeof err === "string") msg = err;
+        else msg = JSON.stringify(err);
+      } catch(e) { msg = String(err); }
+      setError(msg);
+    }).finally(function() {
+      clearInterval(interval);
+      setLoading(false);
+    });
+  }, [imgData, apiKey, activeProject, online]);
 
-  // ── Settings Modal ────────────────────────────────────────
+  // ── File Handling ───────────────────────────────────────
+  function handleFile(e) {
+    var file = (e.target.files || [])[0];
+    if (e.target) e.target.value = "";
+    if (!file) return;
+
+    setError(null);
+    setLoading(true);
+    setLoadMsg("Processing image...");
+
+    processImage(file).then(function(data) {
+      setImgData(data);
+      setView("capture");
+    }).catch(function(err) {
+      setError(err.message || "Could not process image");
+    }).finally(function() {
+      setLoading(false);
+    });
+  }
+
+  function clearCapture() { setImgData(null); setResult(null); setSelCapture(null); setError(null); }
+  function goBack() { if (view === "results" || view === "capture") { clearCapture(); setView("home"); } else setView("home"); }
+
+  function addProject() {
+    if (!newProjName.trim()) return;
+    var p = { id:uid(), name:newProjName.trim(), captures:[], created:now() };
+    setProjects(function(prev) { return prev.concat([p]); });
+    setActiveProject(p.id);
+    setNewProjName("");
+    setShowNewProj(false);
+    showToast("Project created");
+  }
+
+  function deleteCapture(captureId) {
+    setProjects(function(prev) { return prev.map(function(p) { return Object.assign({}, p, { captures:p.captures.filter(function(c) { return c.id !== captureId; }) }); }); });
+    if (selCapture && selCapture.id === captureId) { setSelCapture(null); setView(view === "results" ? "home" : view); }
+    showToast("Capture removed");
+  }
+
+  function deleteProject(projId) {
+    if (projId === "default") return;
+    setProjects(function(prev) { return prev.filter(function(p) { return p.id !== projId; }); });
+    if (activeProject === projId) setActiveProject("default");
+    setView("home");
+    showToast("Project deleted");
+  }
+
+  function copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function() { showToast("Copied!", "success"); }).catch(function() { showToast("Copy failed"); });
+    } else { showToast("Clipboard not available"); }
+  }
+
+  function shareResult(captureObj) {
+    var text = formatResultText(captureObj);
+    if (navigator.share) {
+      navigator.share({ title:"SiteVision AI — " + captureObj.mode + " analysis", text:text }).catch(function() {});
+    } else {
+      copyToClipboard(text);
+    }
+  }
+
+  function formatResultText(cap) {
+    var r = cap.result;
+    if (r.type === "custom") return "SiteVision AI Analysis\n" + cap.timestamp + "\n\n" + r.text;
+    if (r.type === "measure") {
+      var lines = ["SiteVision AI — Measurements", cap.timestamp, "Room: " + (r.data.room_type || ""), "Reference: " + (r.data.reference_used || ""), ""];
+      (r.data.measurements || []).forEach(function(m) {
+        lines.push(m.surface + ": " + (m.width_ft||"?") + "' x " + (m.height_ft||"?") + "' = " + (m.area_sqft||"?") + " sqft (" + m.confidence + ")");
+      });
+      if (r.data.overall_notes) lines.push("", "Notes: " + r.data.overall_notes);
+      return lines.join("\n");
+    }
+    if (r.type === "material") {
+      var lines = ["SiteVision AI — Material Estimate", cap.timestamp, "Scope: " + (r.data.scope || ""), ""];
+      (r.data.materials || []).forEach(function(m) { lines.push(m.item + ": " + m.quantity + " " + m.unit); });
+      var cost = r.data.cost_estimate_range;
+      if (cost) lines.push("", "Est. Cost: $" + (cost.low||0) + " – $" + (cost.high||0));
+      return lines.join("\n");
+    }
+    if (r.type === "document") {
+      return "SiteVision AI — Site Report\n" + cap.timestamp + "\n" + (r.data.summary || "") + "\nPhase: " + (r.data.work_phase || "") + "\nCondition: " + (r.data.condition || "");
+    }
+    return JSON.stringify(r, null, 2);
+  }
+
+  // ── RENDER: File Input (hidden, shared) ───────────────
+  function FileInput() {
+    return html`<input ref=${fileRef} type="file" accept="image/*,.heic,.heif" onChange=${handleFile} className="hidden" aria-label="Upload photo" />`;
+  }
+
+  // ── RENDER: Settings Modal ────────────────────────────
   function SettingsModal() {
+    var _testing = useState(false); var testing = _testing[0]; var setTesting = _testing[1];
+    var _testOk = useState(null); var testOk = _testOk[0]; var setTestOk = _testOk[1];
+
+    function testKey() {
+      if (!apiKey) return;
+      setTesting(true); setTestOk(null);
+      fetch("https://api.anthropic.com/v1/messages", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json", "x-api-key":apiKey, "anthropic-version":"2023-06-01", "anthropic-dangerous-direct-browser-access":"true" },
+        body: JSON.stringify({ model:MODEL, max_tokens:10, messages:[{ role:"user", content:"Say OK" }] })
+      }).then(function(r) { setTestOk(r.ok); setTesting(false); }).catch(function() { setTestOk(false); setTesting(false); });
+    }
+
     return html`
-      <div className="loading-overlay" onClick=${() => setShowSettings(false)}>
-        <div className="loading-box fade-in" onClick=${e => e.stopPropagation()} style=${{ textAlign:"left", padding:24 }}>
-          <div style=${{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
-            <div style=${{ fontSize:15, fontWeight:800, color:"#fff" }}>API Settings</div>
-            <button className="back-btn" onClick=${() => setShowSettings(false)}>${icon("x",20)}</button>
+      <div className="overlay anim-fade" onClick=${function() { setShowSettings(false); }}>
+        <div className="overlay-box anim-scale" onClick=${function(e) { e.stopPropagation(); }}>
+          <div className="flex items-center justify-between mb-16">
+            <div className="h2">Settings</div>
+            <button className="back-btn" onClick=${function() { setShowSettings(false); }}>${ic("x",20)}</button>
           </div>
+
           <div className="tag">Anthropic API Key</div>
-          <p style=${{ fontSize:11, color:"#666", marginBottom:12, lineHeight:1.5 }}>
-            Your key stays in your browser's local storage. Never sent anywhere except Anthropic's API.
+          <p style=${{ fontSize:11, color:"#52525b", marginBottom:12, lineHeight:1.5 }}>
+            Stored only in your browser. Sent directly to Anthropic's servers — nowhere else.
           </p>
-          <input type="password" className="input" value=${apiKey} onInput=${e => saveKey(e.target.value)}
-            placeholder="sk-ant-..." style=${{ marginBottom:12 }} />
-          <p style=${{ fontSize:10, color:"#555", lineHeight:1.5 }}>
-            Get a key at ${" "}<a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener"
-            style=${{ color:"#f97316" }}>console.anthropic.com</a>
-          </p>
-          ${apiKey && html`
-            <div style=${{ marginTop:12, display:"flex", alignItems:"center", gap:6 }}>
-              <span style=${{ color:"#22c55e" }}>${icon("check",14)}</span>
-              <span style=${{ fontSize:11, color:"#22c55e" }}>Key saved</span>
-            </div>
-          `}
+          <input type="password" className="input mb-8" value=${apiKey} onInput=${function(e) { saveKey(e.target.value); setTestOk(null); }}
+            placeholder="sk-ant-api03-..." />
+
+          <div className="flex gap-8 mb-12">
+            <button className="btn-sm flex-1" onClick=${testKey} disabled=${!apiKey || testing}>
+              ${testing ? "Testing..." : "Test Key"}
+            </button>
+            <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener"
+              className="btn-sm flex-1" style=${{ textDecoration:"none", justifyContent:"center" }}>
+              Get Key ↗
+            </a>
+          </div>
+
+          ${testOk === true && html`<div style=${{ fontSize:11, color:"#22c55e", display:"flex", alignItems:"center", gap:6 }}>${ic("check",14)} Key is valid and working</div>`}
+          ${testOk === false && html`<div style=${{ fontSize:11, color:"#ef4444", display:"flex", alignItems:"center", gap:6 }}>${ic("x",14)} Key is invalid — check and try again</div>`}
+
+          <div style=${{ borderTop:"1px solid #1c1c22", marginTop:16, paddingTop:16 }}>
+            <div className="tag">Storage</div>
+            <p className="text-sm mb-8">${projects.reduce(function(sum,p) { return sum + p.captures.length; }, 0)} captures across ${projects.length} projects</p>
+            <button className="btn-sm" style=${{ color:"#ef4444", borderColor:"#ef444433" }}
+              onClick=${function() { if (confirm("Delete ALL projects and captures?")) { setProjects([{ id:"default", name:"Quick Captures", captures:[], created:now() }]); showToast("All data cleared"); } }}>
+              Clear All Data
+            </button>
+          </div>
         </div>
       </div>
     `;
   }
 
-  // ── Loading Overlay ───────────────────────────────────────
+  // ── RENDER: Loading Overlay ───────────────────────────
   function LoadingOverlay() {
     return html`
-      <div className="loading-overlay">
-        <div className="loading-box">
-          <div className="loading-pulse"><span style=${{ color:"#f97316" }}>${icon("zap",28)}</span></div>
-          <div style=${{ fontSize:14, fontWeight:700, color:"#fff", marginBottom:6 }}>${loadingMsg}</div>
-          <div style=${{ fontSize:11, color:"#666" }}>AI analyzing your capture</div>
+      <div className="overlay">
+        <div className="overlay-box" style=${{ textAlign:"center", padding:"40px 28px" }}>
+          <div className="loading-ring"></div>
+          <div style=${{ fontSize:14, fontWeight:700, color:"#fafafa", marginBottom:6 }}>${loadMsg}</div>
+          <div className="text-sm">This usually takes 5–10 seconds</div>
         </div>
       </div>
     `;
   }
 
-  // ── HOME VIEW ─────────────────────────────────────────────
+  // ── RENDER: Image Zoom ────────────────────────────────
+  function ZoomView() {
+    if (!zoom) return null;
+    return html`<div className="zoom-overlay anim-fade" onClick=${function() { setZoom(null); }}>
+      <img src=${zoom} alt="Zoomed capture" />
+    </div>`;
+  }
+
+  // ── RENDER: HOME ──────────────────────────────────────
   function HomeView() {
+    var totalCaptures = projects.reduce(function(s,p) { return s + p.captures.length; }, 0);
+
     return html`
-      <div className="body fade-in">
-        <div style=${{ textAlign:"center", padding:"20px 0 32px" }}>
-          <div style=${{ color:"#f97316", marginBottom:16 }}>${icon("glasses",48)}</div>
-          <h1 style=${{ fontSize:24, fontWeight:900, color:"#fff", letterSpacing:-1 }}>SiteVision AI</h1>
-          <p style=${{ fontSize:12, color:"#666", marginTop:6, letterSpacing:.5 }}>Construction Intelligence • Powered by Ray-Ban Meta</p>
+      <div className="body">
+        <!-- Hero -->
+        <div className="text-center anim-up" style=${{ padding:"24px 0 28px" }}>
+          <div style=${{ color:"#f97316", marginBottom:14 }}>${ic("glasses",52)}</div>
+          <h1 className="h1">SiteVision AI</h1>
+          <p style=${{ fontSize:11, color:"#52525b", marginTop:8, letterSpacing:1 }}>CONSTRUCTION INTELLIGENCE</p>
+          ${totalCaptures > 0 && html`<p className="text-xs mt-8">${totalCaptures} total captures across ${projects.length} projects</p>`}
         </div>
 
-        <div className="capture-zone" onClick=${() => fileRef.current?.click()}>
-          <div style=${{ color:"#f97316", marginBottom:12 }}>${icon("camera",36)}</div>
-          <div style=${{ fontSize:15, fontWeight:800, color:"#fff", marginBottom:4 }}>New Capture</div>
-          <div style=${{ fontSize:11, color:"#666" }}>Take a photo or upload from glasses</div>
-        </div>
-        <input ref=${fileRef} type="file" onChange=${handleImageUpload} className="hidden" />
-
-        <div className="actions-grid">
-          ${[
-            { ic:"ruler", label:"Measure", desc:"Dimensions" },
-            { ic:"box", label:"Materials", desc:"Estimates" },
-            { ic:"clipboard", label:"Document", desc:"Site report" },
-          ].map(a => html`
-            <div key=${a.ic} className="card action-card card-hover" onClick=${() => fileRef.current?.click()}>
-              <div style=${{ color:"#f97316", marginBottom:8 }}>${icon(a.ic,20)}</div>
-              <div style=${{ fontSize:12, fontWeight:700, color:"#fff" }}>${a.label}</div>
-              <div style=${{ fontSize:9, color:"#555", marginTop:2 }}>${a.desc}</div>
-            </div>
-          `)}
+        <!-- Capture Button -->
+        <div className="capture-zone anim-up delay-1" onClick=${function() { fileRef.current && fileRef.current.click(); }}>
+          <div style=${{ color:"#f97316", marginBottom:10 }}>${ic("camera",40)}</div>
+          <div style=${{ fontSize:15, fontWeight:800, color:"#fafafa", marginBottom:4, fontFamily:"'Space Grotesk',sans-serif" }}>New Capture</div>
+          <div className="text-sm">Tap to upload a photo from your glasses</div>
         </div>
 
+        <!-- Quick Actions -->
+        <div className="grid-3 anim-up delay-2 mb-16">
+          ${MODE_INFO.slice(0,3).map(function(m) {
+            return html`
+              <div key=${m.id} className="card card-interactive text-center" style=${{ padding:"14px 8px", marginBottom:0 }}
+                onClick=${function() { fileRef.current && fileRef.current.click(); }}>
+                <div style=${{ color:m.color, marginBottom:6 }}>${ic(m.ic,20)}</div>
+                <div style=${{ fontSize:11, fontWeight:700, color:"#e4e4e7" }}>${m.title}</div>
+                <div className="text-xs mt-4">${m.desc}</div>
+              </div>
+            `;
+          })}
+        </div>
+
+        <!-- API Key Warning -->
         ${!apiKey && html`
-          <div className="card" style=${{ borderColor:"#f59e0b33", background:"#f59e0b08", cursor:"pointer" }} onClick=${() => setShowSettings(true)}>
-            <div style=${{ display:"flex", alignItems:"center", gap:10 }}>
-              <span style=${{ color:"#f59e0b" }}>${icon("key",18)}</span>
+          <div className="card card-interactive card-warn anim-up delay-3" onClick=${function() { setShowSettings(true); }}>
+            <div className="flex items-center gap-10">
+              <span style=${{ color:"#f59e0b" }}>${ic("key",20)}</span>
               <div>
-                <div style=${{ fontSize:13, fontWeight:700, color:"#f59e0b" }}>Set up API Key</div>
-                <div style=${{ fontSize:11, color:"#888", marginTop:2 }}>Required for AI analysis — tap to configure</div>
+                <div style=${{ fontSize:13, fontWeight:700, color:"#f59e0b" }}>Set Up API Key</div>
+                <div className="text-sm mt-4">Required for AI analysis — tap to configure</div>
               </div>
             </div>
           </div>
         `}
 
-        <div style=${{ display:"flex", alignItems:"center", justifyContent:"space-between", margin:"28px 0 12px" }}>
-          <div className="tag">Projects</div>
-          <button className="btn-sm" onClick=${() => setShowNewProject(true)} style=${{ padding:"6px 10px", fontSize:10 }}>
-            ${icon("plus",12)} New
-          </button>
-        </div>
-
-        ${showNewProject && html`
-          <div className="card" style=${{ display:"flex", gap:8, alignItems:"center" }}>
-            <input value=${newProjectName} onInput=${e => setNewProjectName(e.target.value)}
-              onKeyDown=${e => e.key === "Enter" && addProject()} placeholder="Project name..." className="input" style=${{ flex:1 }} autoFocus />
-            <button className="btn-sm btn-sm-accent" onClick=${addProject}>Add</button>
-            <button className="btn-sm" onClick=${() => setShowNewProject(false)} style=${{ padding:10 }}>${icon("x",14)}</button>
+        <!-- Offline Warning -->
+        ${!online && html`
+          <div className="card card-danger anim-up">
+            <div className="flex items-center gap-10">
+              <div className="dot dot-red"></div>
+              <div className="text-sm" style=${{ color:"#fca5a5" }}>You're offline — captures will work but analysis needs internet</div>
+            </div>
           </div>
         `}
 
-        ${projects.map(p => html`
-          <div key=${p.id} className="card card-hover" onClick=${() => { setActiveProject(p.id); setView("project"); }}
-            style=${{ display:"flex", alignItems:"center", gap:14 }}>
-            <span style=${{ color:"#f97316" }}>${icon("folder",22)}</span>
-            <div style=${{ flex:1 }}>
-              <div style=${{ fontSize:14, fontWeight:700, color:"#fff" }}>${p.name}</div>
-              <div style=${{ fontSize:11, color:"#555", marginTop:2 }}>${p.captures.length} capture${p.captures.length !== 1 ? "s" : ""} • ${p.created}</div>
-            </div>
-            <span style=${{ color:"#333" }}>${icon("chevronR",16)}</span>
+        <!-- Projects -->
+        <div className="flex items-center justify-between mt-20 mb-10">
+          <div className="tag" style=${{ marginBottom:0 }}>Projects</div>
+          <button className="btn-sm" onClick=${function() { setShowNewProj(true); }} style=${{ padding:"6px 10px", fontSize:10 }}>
+            ${ic("plus",11)} New
+          </button>
+        </div>
+
+        ${showNewProj && html`
+          <div className="card anim-scale" style=${{ display:"flex", gap:8, alignItems:"center" }}>
+            <input value=${newProjName} onInput=${function(e) { setNewProjName(e.target.value); }}
+              onKeyDown=${function(e) { if (e.key === "Enter") addProject(); }}
+              placeholder="Project name..." className="input" style=${{ flex:1 }} autoFocus />
+            <button className="btn-sm btn-sm-accent" onClick=${addProject}>Add</button>
+            <button className="btn-sm" onClick=${function() { setShowNewProj(false); }} style=${{ padding:8 }}>${ic("x",14)}</button>
           </div>
-        `)}
+        `}
+
+        ${projects.map(function(p, pi) {
+          return html`
+            <div key=${p.id} className="card card-interactive anim-up" style=${{ animationDelay:(pi * 0.04) + "s", display:"flex", alignItems:"center", gap:12 }}
+              onClick=${function() { setActiveProject(p.id); setView("project"); }}>
+              <span style=${{ color:"#f97316" }}>${ic("folder",20)}</span>
+              <div style=${{ flex:1, minWidth:0 }}>
+                <div className="h3 truncate">${p.name}</div>
+                <div className="text-xs mt-4">${p.captures.length} capture${p.captures.length !== 1 ? "s" : ""} • ${p.created}</div>
+              </div>
+              <span style=${{ color:"#27272a" }}>${ic("chevR",16)}</span>
+            </div>
+          `;
+        })}
       </div>
     `;
   }
 
-  // ── CAPTURE VIEW ──────────────────────────────────────────
+  // ── RENDER: CAPTURE ───────────────────────────────────
   function CaptureView() {
-    const [mode, setMode] = useState("measure");
-    const modes = [
-      { id:"measure", ic:"ruler", title:"Measure", desc:"Estimate dimensions of walls, surfaces, openings" },
-      { id:"material", ic:"box", title:"Materials", desc:"Estimate materials, quantities, and costs" },
-      { id:"document", ic:"clipboard", title:"Document", desc:"Generate professional site report entry" },
-      { id:"custom", ic:"chat", title:"Ask AI", desc:"Ask anything about this capture" },
-    ];
+    var _mode = useState("measure"); var mode = _mode[0]; var setMode = _mode[1];
 
     return html`
-      <div className="body fade-in">
-        <img src=${capturedImage} alt="capture" className="img-preview" />
+      <div className="body">
+        <img src=${imgData && imgData.preview} alt="Capture" className="img-preview anim-fade"
+          onClick=${function() { if (imgData) setZoom(imgData.preview); }}
+          style=${{ cursor:"zoom-in", maxHeight:260, objectFit:"cover" }} />
+
         ${error && html`
-          <div className="card issue-card mb-16">
+          <div className="card card-danger anim-scale mb-12">
             <div className="tag" style=${{ color:"#ef4444" }}>Error</div>
-            <div style=${{ fontSize:12, color:"#fca5a5" }}>${error}</div>
+            <div style=${{ fontSize:12, color:"#fca5a5", lineHeight:1.6 }}>${error}</div>
+            <button className="btn-sm mt-8" onClick=${function() { setError(null); }}>Dismiss</button>
           </div>
         `}
-        <div className="tag mb-12">Analysis Mode</div>
-        <div style=${{ display:"flex", flexDirection:"column", gap:8, marginBottom:16 }}>
-          ${modes.map(m => html`
-            <div key=${m.id} className=${"mode-card" + (mode === m.id ? " active" : "")} onClick=${() => setMode(m.id)}>
-              <span className="mode-icon" style=${{ marginTop:2 }}>${icon(m.ic,20)}</span>
-              <div>
-                <div className="mode-title" style=${{ fontSize:13, fontWeight:700 }}>${m.title}</div>
-                <div style=${{ fontSize:11, color:"#666", marginTop:2 }}>${m.desc}</div>
+
+        <div className="tag mb-8">Analysis Mode</div>
+        <div className="flex flex-col gap-8 mb-16">
+          ${MODE_INFO.map(function(m, i) {
+            var isActive = mode === m.id;
+            return html`
+              <div key=${m.id} className=${"mode-card anim-in delay-" + (i+1) + (isActive ? " active" : "")}
+                onClick=${function() { setMode(m.id); }}>
+                <span style=${{ color:isActive ? m.color : "#52525b", marginTop:1, transition:"color .2s" }}>${ic(m.ic,20)}</span>
+                <div style=${{ flex:1 }}>
+                  <div style=${{ fontSize:13, fontWeight:700, color:isActive ? "#fafafa" : "#a1a1aa", transition:"color .2s" }}>${m.title}</div>
+                  <div className="text-xs mt-4">${m.desc}</div>
+                </div>
+                ${isActive && html`<div className="dot dot-green"></div>`}
               </div>
-            </div>
-          `)}
+            `;
+          })}
         </div>
+
         ${mode === "custom" && html`
-          <div className="mb-16">
-            <input value=${customQ} onInput=${e => setCustomQ(e.target.value)}
-              placeholder="e.g. How many outlets do I need here?" className="input" />
+          <div className="mb-16 anim-scale">
+            <textarea className="input" value=${customQ} onInput=${function(e) { setCustomQ(e.target.value); }}
+              placeholder="e.g. How many outlets does code require here?" rows="3"
+              style=${{ resize:"vertical", minHeight:60, lineHeight:1.6 }} />
           </div>
         `}
-        <div className="flex-row">
+
+        <div className="flex-row gap-8">
           <button className="btn btn-secondary flex-1" onClick=${goBack}>Cancel</button>
-          <button className="btn btn-primary flex-2" onClick=${() => runAnalysis(mode, customQ)}
+          <button className="btn btn-primary flex-2" onClick=${function() { runAnalysis(mode, customQ); }}
             disabled=${mode === "custom" && !customQ.trim()}>
-            ${icon("zap",16)} Analyze
+            ${ic("zap",16)} Analyze
           </button>
         </div>
       </div>
     `;
   }
 
-  // ── RESULTS VIEW ──────────────────────────────────────────
+  // ── RENDER: RESULTS ───────────────────────────────────
   function ResultsView() {
-    const result = selectedCapture?.result || analysisResult;
-    if (!result) return null;
+    var cap = selCapture;
+    var r = cap ? cap.result : result;
+    if (!r) return html`<div className="body text-center"><p className="text-sm">No results to display</p></div>`;
 
-    function renderMeasure(data) {
+    function ActionBar() {
       return html`
-        <div className="fade-in">
-          <div className="card ref-card">
-            <div className="tag">Reference Used</div>
-            <div style=${{ fontSize:13, color:"#fff", fontWeight:600 }}>${data.reference_used}</div>
-            <div style=${{ fontSize:11, color:"#888", marginTop:4 }}>Room: ${data.room_type}</div>
-          </div>
-          ${(data.measurements || []).map((m, i) => html`
-            <div key=${i} className="card">
-              <div style=${{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
-                <div style=${{ fontSize:14, fontWeight:700, color:"#fff" }}>${m.surface}</div>
-                <${ConfBadge} level=${m.confidence} />
-              </div>
-              <div className="grid-3">
-                ${[
-                  { label:"Width", val:m.width_ft ? m.width_ft + "'" : "—" },
-                  { label:"Height", val:m.height_ft ? m.height_ft + "'" : "—" },
-                  { label:"Area", val:m.area_sqft ? m.area_sqft + " ft²" : "—" },
-                ].map((v,j) => html`
-                  <div key=${j} className="metric-box">
-                    <div className="metric-label">${v.label}</div>
-                    <div className="metric-value">${v.val}</div>
-                  </div>
-                `)}
-              </div>
-              ${m.notes && html`<div style=${{ fontSize:11, color:"#888", marginTop:8 }}>${m.notes}</div>`}
-            </div>
-          `)}
-          ${data.overall_notes && html`
-            <div className="card note-card">
-              <div className="tag">Notes</div>
-              <div style=${{ fontSize:12, color:"#ccc", lineHeight:1.6 }}>${data.overall_notes}</div>
-            </div>
-          `}
+        <div className="flex-row gap-8 mt-20">
+          <button className="btn btn-secondary flex-1" onClick=${function() { shareResult(cap); }}>
+            ${ic("share",14)} Share
+          </button>
+          <button className="btn btn-secondary flex-1" onClick=${function() { copyToClipboard(formatResultText(cap)); }}>
+            ${ic("copy",14)} Copy
+          </button>
+        </div>
+        <div className="flex-row gap-8 mt-8">
+          <button className="btn btn-secondary flex-1" onClick=${function() { clearCapture(); setView("home"); }}>Done</button>
+          <button className="btn btn-primary flex-1" onClick=${function() {
+            // Re-analyze: go back to capture view keeping the same image
+            if (cap && cap.preview) {
+              setImgData({ base64:imgData ? imgData.base64 : "", preview:cap.preview, thumbnail:cap.thumbnail, width:0, height:0 });
+            }
+            setView("capture"); setResult(null); setError(null);
+          }}>Re-analyze</button>
         </div>
       `;
     }
 
-    function renderMaterial(data) {
+    function MeasureResults(props) {
+      var d = props.data;
       return html`
-        <div className="fade-in">
-          <div className="card cost-card">
-            <div style=${{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-              <div>
-                <div className="tag">Scope</div>
-                <div style=${{ fontSize:13, color:"#fff", fontWeight:600 }}>${data.scope}</div>
+        <div className="anim-up">
+          <div className="card card-info">
+            <div className="tag">Reference Used</div>
+            <div className="h3">${d.reference_used || "Auto-detected"}</div>
+            <div className="text-sm mt-4">Room type: ${d.room_type || "Unknown"}</div>
+            ${d.total_wall_area_sqft ? html`<div className="text-sm mt-4">Total wall area: ${d.total_wall_area_sqft} ft²</div>` : null}
+            ${d.total_floor_area_sqft ? html`<div className="text-sm mt-4">Total floor area: ${d.total_floor_area_sqft} ft²</div>` : null}
+          </div>
+          ${(d.measurements || []).map(function(m, i) {
+            return html`
+              <div key=${i} className="card anim-up" style=${{ animationDelay:(i * 0.05)+"s" }}>
+                <div className="flex items-center justify-between mb-10">
+                  <div className="h3">${m.surface}</div>
+                  <span className=${"conf conf-" + m.confidence}>${m.confidence}</span>
+                </div>
+                <div className="grid-3">
+                  <div className="metric"><div className="metric-label">Width</div><div className="metric-value">${m.width_ft ? m.width_ft + "'" : "—"}</div></div>
+                  <div className="metric"><div className="metric-label">Height</div><div className="metric-value">${m.height_ft ? m.height_ft + "'" : "—"}</div></div>
+                  <div className="metric"><div className="metric-label">Area</div><div className="metric-value">${m.area_sqft ? m.area_sqft + " ft²" : "—"}</div></div>
+                </div>
+                ${m.notes ? html`<div className="text-sm mt-8">${m.notes}</div>` : null}
               </div>
-              <div style=${{ textAlign:"right" }}>
+            `;
+          })}
+          ${d.overall_notes ? html`<div className="card card-info"><div className="tag">Notes</div><div style=${{ fontSize:12, color:"#d4d4d8", lineHeight:1.7 }}>${d.overall_notes}</div></div>` : null}
+        </div>
+      `;
+    }
+
+    function MaterialResults(props) {
+      var d = props.data;
+      var cost = d.cost_estimate_range;
+      return html`
+        <div className="anim-up">
+          <div className="card card-success">
+            <div className="flex justify-between items-center">
+              <div><div className="tag">Scope</div><div className="h3">${d.scope || "General"}</div></div>
+              <div className="text-right">
                 <div className="metric-label">Est. Cost</div>
-                <div style=${{ fontSize:18, fontWeight:800, color:"#22c55e" }}>
-                  $${data.cost_estimate_range?.low?.toLocaleString()} – $${data.cost_estimate_range?.high?.toLocaleString()}
+                <div style=${{ fontSize:20, fontWeight:800, color:"#22c55e", fontFamily:"'Space Grotesk',sans-serif" }}>
+                  $${cost ? cost.low.toLocaleString() : 0} – $${cost ? cost.high.toLocaleString() : 0}
                 </div>
               </div>
             </div>
-            ${data.labor_hours_estimate && html`
-              <div style=${{ fontSize:11, color:"#888", marginTop:8, borderTop:"1px solid #1a1a1a", paddingTop:8 }}>
-                Labor: ${data.labor_hours_estimate.low}–${data.labor_hours_estimate.high} hrs
-              </div>
-            `}
+            ${d.labor_hours_estimate ? html`<div className="text-sm mt-8" style=${{ borderTop:"1px solid #1c1c22", paddingTop:8 }}>Labor: ${d.labor_hours_estimate.low}–${d.labor_hours_estimate.high} hrs</div>` : null}
           </div>
           <div className="tag">Materials List</div>
-          ${(data.materials || []).map((m,i) => html`
-            <div key=${i} className="card" style=${{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-              <div>
-                <div style=${{ fontSize:13, fontWeight:700, color:"#fff" }}>${m.item}</div>
-                ${m.notes && html`<div style=${{ fontSize:10, color:"#666", marginTop:2 }}>${m.notes}</div>`}
+          ${(d.materials || []).map(function(m, i) {
+            return html`
+              <div key=${i} className="card anim-up flex justify-between items-center" style=${{ animationDelay:(i*0.04)+"s" }}>
+                <div style=${{ minWidth:0, flex:1 }}>
+                  <div className="h3 truncate">${m.item}</div>
+                  ${m.notes ? html`<div className="text-xs mt-4">${m.notes}</div>` : null}
+                </div>
+                <div className="text-right" style=${{ flexShrink:0, marginLeft:12 }}>
+                  <span style=${{ fontSize:20, fontWeight:800, color:"#f97316", fontFamily:"'Space Grotesk',sans-serif" }}>${m.quantity}</span>
+                  <span className="text-sm" style=${{ marginLeft:4 }}>${m.unit}</span>
+                  ${m.unit_cost_est ? html`<div className="text-xs mt-4">~$${m.unit_cost_est}/ea</div>` : null}
+                </div>
               </div>
-              <div style=${{ textAlign:"right" }}>
-                <span style=${{ fontSize:18, fontWeight:800, color:"#f97316" }}>${m.quantity}</span>
-                <span style=${{ fontSize:11, color:"#888", marginLeft:4 }}>${m.unit}</span>
-              </div>
-            </div>
-          `)}
-          ${data.assumptions && html`
-            <div className="card warn-card">
-              <div className="tag">Assumptions</div>
-              <div style=${{ fontSize:12, color:"#ccc", lineHeight:1.6 }}>${data.assumptions}</div>
-            </div>
-          `}
+            `;
+          })}
+          ${d.recommended_extras ? html`<div className="card card-warn"><div className="tag" style=${{ color:"#f59e0b" }}>Don't Forget</div><div style=${{ fontSize:12, color:"#d4d4d8", lineHeight:1.6 }}>${d.recommended_extras}</div></div>` : null}
+          ${d.assumptions ? html`<div className="card card-info"><div className="tag">Assumptions</div><div style=${{ fontSize:12, color:"#d4d4d8", lineHeight:1.6 }}>${d.assumptions}</div></div>` : null}
         </div>
       `;
     }
 
-    function renderDocument(data) {
+    function DocumentResults(props) {
+      var d = props.data;
       return html`
-        <div className="fade-in">
-          <div className="grid-2 mb-12">
+        <div className="anim-up">
+          <div className="grid-2 gap-8 mb-10">
             ${[
-              { label:"Location", val:data.location_type },
-              { label:"Phase", val:data.work_phase },
-              { label:"Condition", val:data.condition },
-              { label:"Progress", val:data.progress_pct != null ? data.progress_pct + "%" : "—" },
-            ].map((v,i) => html`
-              <div key=${i} className="metric-box">
-                <div className="metric-label">${v.label}</div>
-                <div style=${{ fontSize:13, fontWeight:700, color:"#fff", marginTop:4 }}>${v.val}</div>
-              </div>
-            `)}
+              { label:"Location", val:d.location_type },
+              { label:"Phase", val:d.work_phase },
+              { label:"Condition", val:d.condition },
+              { label:"Progress", val:d.progress_pct != null ? d.progress_pct + "%" : "—" },
+            ].map(function(v, i) {
+              return html`<div key=${i} className="metric anim-up" style=${{ animationDelay:(i*0.05)+"s" }}><div className="metric-label">${v.label}</div><div className="metric-value-sm">${v.val}</div></div>`;
+            })}
           </div>
-          <div className="card">
-            <div className="tag">Summary</div>
-            <div style=${{ fontSize:13, color:"#ccc", lineHeight:1.7 }}>${data.summary}</div>
-          </div>
-          ${data.items_visible?.length > 0 && html`
-            <div className="card">
-              <div className="tag">Items Visible</div>
-              <div>${data.items_visible.map((item,i) => html`<span key=${i} className="pill">${item}</span>`)}</div>
-            </div>
-          `}
-          ${data.issues?.length > 0 && html`
-            <div className="card issue-card">
-              <div className="tag" style=${{ color:"#ef4444" }}>Issues Flagged</div>
-              ${data.issues.map((issue,i) => html`<div key=${i} className="issue-item">• ${issue}</div>`)}
-            </div>
-          `}
-          ${data.recommendations?.length > 0 && html`
-            <div className="card rec-card">
-              <div className="tag" style=${{ color:"#22c55e" }}>Recommendations</div>
-              ${data.recommendations.map((rec,i) => html`<div key=${i} className="rec-item"><span style=${{ color:"#22c55e", marginRight:6 }}>→</span>${rec}</div>`)}
-            </div>
-          `}
+          ${d.quality_rating ? html`<div className="card card-info"><div className="tag">Quality</div><div className="h3">${d.quality_rating}</div></div>` : null}
+          <div className="card"><div className="tag">Summary</div><div style=${{ fontSize:13, color:"#d4d4d8", lineHeight:1.8 }}>${d.summary}</div></div>
+          ${d.items_visible && d.items_visible.length > 0 ? html`<div className="card"><div className="tag">Items Visible</div><div>${d.items_visible.map(function(t,i) { return html`<span key=${i} className="pill">${t}</span>`; })}</div></div>` : null}
+          ${d.safety_concerns && d.safety_concerns.length > 0 ? html`<div className="card card-danger"><div className="tag" style=${{ color:"#ef4444" }}>Safety Concerns</div>${d.safety_concerns.map(function(s,i) { return html`<div key=${i} style=${{ fontSize:12, color:"#fca5a5", marginBottom:4 }}>⚠ ${s}</div>`; })}</div>` : null}
+          ${d.issues && d.issues.length > 0 ? html`<div className="card card-warn"><div className="tag" style=${{ color:"#f59e0b" }}>Issues</div>${d.issues.map(function(s,i) { return html`<div key=${i} style=${{ fontSize:12, color:"#fcd34d", marginBottom:4 }}>• ${s}</div>`; })}</div>` : null}
+          ${d.recommendations && d.recommendations.length > 0 ? html`<div className="card card-success"><div className="tag" style=${{ color:"#22c55e" }}>Recommendations</div>${d.recommendations.map(function(s,i) { return html`<div key=${i} style=${{ fontSize:12, color:"#86efac", marginBottom:4 }}><span style=${{ color:"#22c55e" }}>→ </span>${s}</div>`; })}</div>` : null}
         </div>
       `;
     }
+
+    var modeInfo = MODE_INFO.find(function(m) { return m.id === r.type; }) || MODE_INFO[3];
 
     return html`
-      <div className="body fade-in">
-        ${selectedCapture && html`<img src=${selectedCapture.image} alt="capture" className="img-preview" style=${{ maxHeight:200, objectFit:"cover" }} />`}
-        <div style=${{ display:"flex", alignItems:"center", gap:8, marginBottom:16 }}>
-          <span style=${{ color:"#f97316" }}>${icon("check",20)}</span>
-          <div style=${{ fontSize:14, fontWeight:700, color:"#fff", flex:1 }}>Analysis Complete</div>
-          <span className="result-badge">${result.type}</span>
-        </div>
-        ${result.type === "measure" && renderMeasure(result.data)}
-        ${result.type === "material" && renderMaterial(result.data)}
-        ${result.type === "document" && renderDocument(result.data)}
-        ${result.type === "custom" && html`
-          <div className="card fade-in">
-            <div className="tag">AI Response</div>
-            <div style=${{ fontSize:13, color:"#ccc", lineHeight:1.8, whiteSpace:"pre-wrap" }}>${result.text}</div>
+      <div className="body">
+        ${cap && cap.preview ? html`
+          <img src=${cap.preview} alt="Capture" className="img-preview anim-fade"
+            onClick=${function() { setZoom(cap.preview); }} style=${{ cursor:"zoom-in", maxHeight:200, objectFit:"cover" }} />
+        ` : null}
+
+        <div className="flex items-center gap-10 mb-16 anim-up">
+          <span style=${{ color:modeInfo.color }}>${ic("check",20)}</span>
+          <div style=${{ flex:1 }}>
+            <div className="h3">Analysis Complete</div>
+            <div className="text-xs mt-4">${cap ? cap.timestamp : ""}</div>
           </div>
-        `}
-        <div className="flex-row mt-20">
-          <button className="btn btn-secondary flex-1" onClick=${() => { clearCapture(); setView("home"); }}>Done</button>
-          <button className="btn btn-primary flex-1" onClick=${() => { setView("capture"); setAnalysisResult(null); setError(null); }}>Re-analyze</button>
+          <span className="badge">${r.type}</span>
         </div>
+
+        ${r.type === "measure" && r.data ? html`<${MeasureResults} data=${r.data} />` : null}
+        ${r.type === "material" && r.data ? html`<${MaterialResults} data=${r.data} />` : null}
+        ${r.type === "document" && r.data ? html`<${DocumentResults} data=${r.data} />` : null}
+        ${r.type === "custom" ? html`<div className="card anim-up"><div className="tag">AI Response</div><div style=${{ fontSize:13, color:"#d4d4d8", lineHeight:1.8, whiteSpace:"pre-wrap" }}>${r.text}</div></div>` : null}
+
+        <${ActionBar} />
       </div>
     `;
   }
 
-  // ── PROJECT VIEW ──────────────────────────────────────────
+  // ── RENDER: PROJECT ───────────────────────────────────
   function ProjectView() {
+    if (!activeProj) return null;
     return html`
-      <div className="body fade-in">
-        <div style=${{ display:"flex", alignItems:"center", gap:12, marginBottom:24 }}>
-          <span style=${{ color:"#f97316" }}>${icon("folder",24)}</span>
-          <div>
-            <div className="section-title">${activeProj?.name}</div>
-            <div style=${{ fontSize:11, color:"#666" }}>${activeProj?.captures.length} captures</div>
+      <div className="body">
+        <div className="flex items-center gap-12 mb-20 anim-up">
+          <span style=${{ color:"#f97316" }}>${ic("folder",24)}</span>
+          <div style=${{ flex:1 }}>
+            <div className="h2">${activeProj.name}</div>
+            <div className="text-xs mt-4">${activeProj.captures.length} captures • Created ${activeProj.created}</div>
           </div>
+          ${activeProj.id !== "default" && html`
+            <button className="btn-sm" style=${{ color:"#ef4444", borderColor:"#ef444433", padding:"6px 10px" }}
+              onClick=${function() { if (confirm("Delete project \"" + activeProj.name + "\" and all its captures?")) deleteProject(activeProj.id); }}>
+              ${ic("trash",12)}
+            </button>
+          `}
         </div>
-        <button className="btn btn-primary mb-20" onClick=${() => fileRef.current?.click()}>
-          ${icon("camera",16)} New Capture
+
+        <button className="btn btn-primary mb-16 anim-up delay-1" onClick=${function() { fileRef.current && fileRef.current.click(); }}>
+          ${ic("camera",16)} New Capture
         </button>
-        <input ref=${fileRef} type="file" onChange=${handleImageUpload} className="hidden" />
-        ${activeProj?.captures.length === 0 && html`
-          <div className="card text-center" style=${{ padding:32 }}>
-            <div style=${{ fontSize:13, color:"#555" }}>No captures yet. Take your first photo.</div>
+
+        ${activeProj.captures.length === 0 && html`
+          <div className="card text-center anim-up delay-2" style=${{ padding:40 }}>
+            <div style=${{ color:"#27272a", marginBottom:8 }}>${ic("camera",32)}</div>
+            <div className="text-sm">No captures yet — take your first photo</div>
           </div>
         `}
-        ${activeProj?.captures.map(c => html`
-          <div key=${c.id} className="card" style=${{ display:"flex", gap:14, alignItems:"flex-start" }}>
-            <img src=${c.image} alt="" style=${{ width:64, height:64, borderRadius:8, objectFit:"cover", cursor:"pointer", border:"1px solid #1f1f1f" }}
-              onClick=${() => { setSelectedCapture(c); setAnalysisResult(c.result); setCapturedImage(c.image); setView("results"); }} />
-            <div style=${{ flex:1, minWidth:0 }}>
-              <div style=${{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-                <span className="mode-badge">${c.mode}</span>
-                <span style=${{ fontSize:10, color:"#555" }}>${c.timestamp}</span>
+
+        ${activeProj.captures.map(function(c, i) {
+          var modeInfo = MODE_INFO.find(function(m) { return m.id === c.mode; }) || MODE_INFO[3];
+          var summary = "";
+          if (c.result) {
+            if (c.result.type === "measure" && c.result.data) summary = (c.result.data.measurements || []).length + " measurements • " + (c.result.data.room_type || "Room");
+            else if (c.result.type === "material" && c.result.data) {
+              var cost = c.result.data.cost_estimate_range;
+              summary = (c.result.data.materials || []).length + " materials" + (cost ? " • $" + cost.low + "–$" + cost.high : "");
+            }
+            else if (c.result.type === "document" && c.result.data) summary = (c.result.data.summary || "").slice(0, 80);
+            else if (c.result.type === "custom") summary = (c.result.text || "").slice(0, 80);
+            if (summary.length >= 80) summary += "...";
+          }
+
+          return html`
+            <div key=${c.id} className="card anim-in" style=${{ animationDelay:(i * 0.04)+"s", display:"flex", gap:12, alignItems:"flex-start" }}>
+              <img src=${c.thumbnail || c.preview} alt="" className="img-thumb"
+                onClick=${function() { if (c.preview) setZoom(c.preview); }} />
+              <div style=${{ flex:1, minWidth:0 }}
+                onClick=${function() { setSelCapture(c); setResult(c.result); setView("results"); }}>
+                <div className="flex items-center justify-between">
+                  <span className="badge" style=${{ color:modeInfo.color, background:modeInfo.color + "15", borderColor:modeInfo.color + "33" }}>${c.mode}</span>
+                  <span className="text-xs">${c.timestamp}</span>
+                </div>
+                <div className="text-sm mt-8 truncate" style=${{ cursor:"pointer" }}>${summary}</div>
               </div>
-              <div style=${{ fontSize:12, color:"#ccc", marginTop:6, cursor:"pointer" }}
-                onClick=${() => { setSelectedCapture(c); setAnalysisResult(c.result); setCapturedImage(c.image); setView("results"); }}>
-                ${c.result?.type === "measure" ? (c.result.data?.measurements?.length || 0) + " measurements • " + (c.result.data?.room_type || "Room") : ""}
-                ${c.result?.type === "material" ? (c.result.data?.materials?.length || 0) + " materials • $" + (c.result.data?.cost_estimate_range?.low || 0) + "–$" + (c.result.data?.cost_estimate_range?.high || 0) : ""}
-                ${c.result?.type === "document" ? (c.result.data?.summary || "").slice(0,80) + "..." : ""}
-                ${c.result?.type === "custom" ? (c.result.text || "").slice(0,80) + "..." : ""}
-              </div>
-              <button className="btn-sm mt-8" style=${{ padding:"4px 8px", fontSize:10, color:"#666", borderColor:"#1a1a1a" }}
-                onClick=${(e) => { e.stopPropagation(); deleteCapture(c.id); }}>
-                ${icon("trash",10)} Remove
+              <button className="back-btn" style=${{ marginTop:2 }} onClick=${function(e) { e.stopPropagation(); deleteCapture(c.id); }}>
+                ${ic("trash",14)}
               </button>
             </div>
-          </div>
-        `)}
+          `;
+        })}
       </div>
     `;
   }
 
-  // ── MAIN RENDER ───────────────────────────────────────────
+  // ── MAIN RENDER ───────────────────────────────────────
   return html`
     <div className="app">
+      <${FileInput} />
+
+      <!-- Header -->
       <div className="header">
-        ${view !== "home" && html`<button className="back-btn" onClick=${goBack}>${icon("chevron",20)}</button>`}
-        <span style=${{ color:"#f97316" }}>${icon("glasses",28)}</span>
+        ${view !== "home" && html`<button className="back-btn" onClick=${goBack}>${ic("chevL",20)}</button>`}
+        <span style=${{ color:"#f97316" }}>${ic("glasses",26)}</span>
         <div style=${{ flex:1 }}>
-          <div style=${{ fontSize:15, fontWeight:700, color:"#fff", letterSpacing:-.5 }}>SiteVision AI</div>
-          <div style=${{ fontSize:9, fontWeight:500, letterSpacing:2.5, color:"#f97316", textTransform:"uppercase" }}>Construction Intelligence</div>
+          <div style=${{ fontSize:14, fontWeight:700, color:"#fafafa", letterSpacing:-.3, fontFamily:"'Space Grotesk',sans-serif" }}>SiteVision AI</div>
+          <div style=${{ fontSize:8, fontWeight:700, letterSpacing:2.5, color:"#f97316", textTransform:"uppercase" }}>Construction Intelligence</div>
         </div>
-        <button className="back-btn" onClick=${() => setShowSettings(true)} style=${{ color:apiKey ? "#333" : "#f59e0b" }}>
-          ${icon("key",18)}
-        </button>
-        <div className="status-dot" style=${apiKey ? {} : { background:"#f59e0b", boxShadow:"0 0 8px #f59e0b66" }}></div>
+        <button className="back-btn" onClick=${function() { setShowSettings(true); }}
+          style=${{ color:apiKey ? "#3f3f46" : "#f59e0b" }}>${ic("settings",17)}</button>
+        <div className=${"dot " + (online ? (apiKey ? "dot-green" : "dot-yellow") : "dot-red")}></div>
       </div>
+
+      <!-- Views -->
       ${view === "home" && html`<${HomeView} />`}
       ${view === "capture" && html`<${CaptureView} />`}
       ${view === "results" && html`<${ResultsView} />`}
       ${view === "project" && html`<${ProjectView} />`}
+
+      <!-- Overlays -->
       ${loading && html`<${LoadingOverlay} />`}
       ${showSettings && html`<${SettingsModal} />`}
+      ${zoom && html`<${ZoomView} />`}
+
+      <!-- Toast -->
+      ${toast && html`<div className=${"toast" + (toast.type === "success" ? " toast-success" : "")}>${toast.msg}</div>`}
     </div>
   `;
 }
